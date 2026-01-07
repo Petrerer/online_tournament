@@ -5,10 +5,10 @@ function TournamentEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tournament, setTournament] = useState(null);
+  const [participants, setParticipants] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     time: "",
-    organizer: "",
     discipline: "",
     maxParticipants: ""
   });
@@ -22,7 +22,7 @@ function TournamentEdit() {
         if (!res.ok) throw new Error("Tournament not found");
         return res.json();
       })
-      .then(data => {
+      .then(async (data) => {
         setTournament(data.tournament);
         
         // Check if user can edit
@@ -35,10 +35,21 @@ function TournamentEdit() {
         // Pre-fill form with existing data
         setFormData({
           name: data.tournament.name,
-          time: data.tournament.time.split('T')[0], // Format date for input
+          time: data.tournament.time.split('T')[0],
           discipline: data.tournament.discipline,
           maxParticipants: data.tournament.maxParticipants
         });
+
+        // Fetch participant details
+        if (data.tournament.participants.length > 0) {
+          const usersRes = await fetch("http://localhost:3000/users/by-ids", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: data.tournament.participants })
+          });
+          const usersData = await usersRes.json();
+          setParticipants(usersData);
+        }
       })
       .catch(err => {
         console.error(err);
@@ -51,6 +62,37 @@ function TournamentEdit() {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleRemoveParticipant = async (userId) => {
+    if (!confirm("Are you sure you want to remove this participant?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3000/tournaments/${id}/remove-participant`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to remove participant");
+      }
+
+      // Update local state
+      setParticipants(participants.filter(p => p._id !== userId));
+      setTournament({
+        ...tournament,
+        participants: tournament.participants.filter(id => id !== userId)
+      });
+
+      alert("Participant removed successfully!");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -153,6 +195,30 @@ function TournamentEdit() {
             min="1"
             required
           />
+        </div>
+
+        <div>
+          <label>Participants:</label>
+          <p>{participants.length} / {tournament.maxParticipants} participants registered</p>
+          
+          {participants.length === 0 ? (
+            <p>No participants yet</p>
+          ) : (
+            participants.map((participant) => (
+              <div key={participant._id} style={{ marginBottom: "10px" }}>
+                <span>
+                  {participant.name} {participant.surname} ({participant.email})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveParticipant(participant._id)}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
         <button type="submit">Save Changes</button>

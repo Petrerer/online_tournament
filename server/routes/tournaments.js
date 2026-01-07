@@ -96,4 +96,56 @@ tournamentsRouter.delete("/:id", authenticateToken, async (req, res) => {
   }
 });
 
+tournamentsRouter.post("/:id/remove-participant", authenticateToken, async (req, res) => {
+  try {
+    const tournament = await tournamentModel.findById(req.params.id);
+    if (!tournament) {
+      return res.status(404).json({ error: "Tournament not found" });
+    }
+
+    // Check if user is the organizer
+    if (!tournament.organizer) {
+      return res.status(403).json({ error: "Tournament has no organizer" });
+    }
+    
+    if (tournament.organizer !== req.user.userId) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    const { userId } = req.body;
+    
+    tournament.participants = tournament.participants.filter(
+      id => id.toString() !== userId
+    );
+    
+    await tournament.save();
+    res.json(tournament);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+tournamentsRouter.post("/", authenticateToken, async (req, res) => {
+  try {
+    const { name, time, discipline, maxParticipants } = req.body;
+    
+    if (!name || !time || !discipline || !maxParticipants) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const tournament = await tournamentModel.create({
+      name,
+      time,
+      discipline,
+      maxParticipants,
+      organizer: req.user.userId,
+      participants: []
+    });
+    
+    res.status(201).json(tournament);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = tournamentsRouter;

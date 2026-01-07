@@ -5,6 +5,7 @@ import Login from "./components/Login.jsx";
 import TournamentDetails from "./components/TournamentDetails.jsx";
 import TournamentList from "./components/TournamentList.jsx";
 import TournamentEdit from "./components/TournamentEdit.jsx";
+import TournamentCreate from "./components/TournamentCreate.jsx";
 
 function AppContent() {
   const { user, loading, logout } = useAuth();
@@ -36,6 +37,7 @@ function AppContent() {
         <Route path="/" element={<TournamentList />} />
         <Route path="/tournaments/:id" element={<TournamentDetails />} />
         <Route path="/tournaments/:id/edit" element={<TournamentEdit />} />
+        <Route path="/tournaments/create" element={<TournamentCreate />} />
       </Routes>
     </>
   );

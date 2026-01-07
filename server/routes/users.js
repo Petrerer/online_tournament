@@ -15,6 +15,16 @@ router.post("/by-ids", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find()
+      .select('name surname email'); // Don't send password
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get single user by ID
 router.get("/:id", async (req, res) => {
   try {
