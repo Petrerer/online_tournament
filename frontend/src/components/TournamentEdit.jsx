@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
 function TournamentEdit() {
   const { id } = useParams();
@@ -27,7 +27,6 @@ function TournamentEdit() {
         
         // Check if user can edit
         if (!data.canEdit) {
-          alert("You don't have permission to edit this tournament");
           navigate(`/tournaments/${id}`);
           return;
         }
@@ -42,13 +41,27 @@ function TournamentEdit() {
 
         // Fetch participant details
         if (data.tournament.participants.length > 0) {
+          // Extract user IDs from participant objects
+          const userIds = data.tournament.participants.map(p => p.userId);
+          
           const usersRes = await fetch("http://localhost:3000/users/by-ids", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ids: data.tournament.participants })
+            body: JSON.stringify({ ids: userIds })
           });
           const usersData = await usersRes.json();
-          setParticipants(usersData);
+          
+          // Merge user data with participant data (license number, ranking)
+          const enrichedParticipants = data.tournament.participants.map(p => {
+            const user = usersData.find(u => u._id === p.userId);
+            return {
+              ...p,
+              userName: user?.name || user?.email || 'Unknown User',
+              userEmail: user?.email
+            };
+          });
+          
+          setParticipants(enrichedParticipants);
         }
       })
       .catch(err => {
@@ -83,13 +96,12 @@ function TournamentEdit() {
       }
 
       // Update local state
-      setParticipants(participants.filter(p => p._id !== userId));
+      setParticipants(participants.filter(p => p.userId !== userId));
       setTournament({
         ...tournament,
-        participants: tournament.participants.filter(id => id !== userId)
+        participants: tournament.participants.filter(p => p.userId !== userId)
       });
 
-      alert("Participant removed successfully!");
     } catch (err) {
       setError(err.message);
     }
@@ -112,7 +124,7 @@ function TournamentEdit() {
         throw new Error(data.error || "Failed to update tournament");
       }
 
-      alert("Tournament updated successfully!");
+    
       navigate(`/tournaments/${id}`);
     } catch (err) {
       setError(err.message);
@@ -135,7 +147,6 @@ function TournamentEdit() {
         throw new Error(data.error || "Failed to delete tournament");
       }
 
-      alert("Tournament deleted successfully!");
       navigate("/");
     } catch (err) {
       setError(err.message);
@@ -146,7 +157,6 @@ function TournamentEdit() {
 
   return (
     <div>
-      <a href={`/tournaments/${id}`}>Back to Tournament</a>
       <h2>Edit Tournament</h2>
 
       {error && <div style={{ color: "red" }}>{error}</div>}
@@ -204,14 +214,18 @@ function TournamentEdit() {
           {participants.length === 0 ? (
             <p>No participants yet</p>
           ) : (
-            participants.map((participant) => (
-              <div key={participant._id} style={{ marginBottom: "10px" }}>
+            participants.map((participant, index) => (
+              <div key={participant.userId || index} style={{ marginBottom: "10px" }}>
                 <span>
-                  {participant.name} {participant.surname} ({participant.email})
+                  <strong>{participant.userName}</strong>
+                  {participant.userEmail && ` (${participant.userEmail})`}
+                  <br />
+                  License: {participant.licenseNumber}
+                  {participant.ranking && ` | Ranking: ${participant.ranking}`}
                 </span>
                 <button
                   type="button"
-                  onClick={() => handleRemoveParticipant(participant._id)}
+                  onClick={() => handleRemoveParticipant(participant.userId)}
                   style={{ marginLeft: "10px" }}
                 >
                   Remove

@@ -7,8 +7,29 @@ const tournamentSchema = new mongoose.Schema({
   discipline: String,
   maxParticipants: Number,
   participants: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    licenseNumber: {
+      type: String,
+      required: true
+    },
+    ranking: {
+      type: Number,
+      required: false
+    },
+    joinedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  pairings: [{
+    player1: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    player2: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    round: { type: Number, default: 1 }
   }]
 });
 

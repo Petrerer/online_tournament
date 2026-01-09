@@ -36,8 +36,7 @@ function TournamentCreate() {
       }
 
       const data = await res.json();
-      alert("Tournament created successfully!");
-      navigate(`/tournaments/${data._id}`);
+      navigate(`/`);
     } catch (err) {
       setError(err.message);
     }
@@ -45,7 +44,6 @@ function TournamentCreate() {
 
   return (
     <div>
-      <a href="/">Back to Tournaments</a>
       <h2>Create New Tournament</h2>
 
       {error && <div style={{ color: "red" }}>{error}</div>}
