@@ -25,11 +25,19 @@ const tournamentSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
-  pairings: [{
-    player1: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    player2: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    round: { type: Number, default: 1 }
+  leaderboard: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    points: { type: Number, default: 0 }
+  }],
+  bracket: [{
+    roundNumber: { type: Number, required: true },
+    matches: [{
+      player1: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      player2: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+      winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+      submission_player1: { type: Number, default: null },
+      submission_player2: { type: Number, default: null }
+    }]
   }]
 });
 

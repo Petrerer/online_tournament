@@ -61,9 +61,9 @@ function TournamentCreate() {
         </div>
 
         <div>
-          <label>Date:</label>
+          <label>Date & Time:</label>
           <input
-            type="date"
+            type="datetime-local"
             name="time"
             value={formData.time}
             onChange={handleChange}
@@ -78,7 +78,6 @@ function TournamentCreate() {
             name="discipline"
             value={formData.discipline}
             onChange={handleChange}
-            placeholder=""
             required
           />
         </div>

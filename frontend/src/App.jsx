@@ -7,6 +7,10 @@ import TournamentList from "./components/TournamentList.jsx";
 import TournamentEdit from "./components/TournamentEdit.jsx";
 import TournamentCreate from "./components/TournamentCreate.jsx";
 import TournamentApplication from "./components/TournamentApplication.jsx";
+import UserDetails from "./components/UserDetails.jsx";
+import VerifyEmail from "./components/VerifyEmail.jsx";
+import ForgotPassword from "./components/ForgotPassword.jsx";
+import ResetPassword from "./components/ResetPassword.jsx";
 
 function AppContent() {
   const { user, loading, logout } = useAuth();
@@ -24,6 +28,9 @@ function AppContent() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </>
     );
@@ -33,8 +40,8 @@ function AppContent() {
     <>
       <h1>Welcome, {user.name}</h1>
       <button onClick={logout}>Logout</button>
-      <br></br>
       <a href={`/`}>Home</a>
+      <a href={`/details`} style={{ marginLeft: "10px" }}>My Matches</a>
 
       <Routes>
         <Route path="/" element={<TournamentList />} />
@@ -42,6 +49,7 @@ function AppContent() {
         <Route path="/tournaments/:id/edit" element={<TournamentEdit />} />
         <Route path="/tournaments/create" element={<TournamentCreate />} />
         <Route path="/tournaments/application/:id" element={<TournamentApplication />} />
+        <Route path="/details" element={<UserDetails />} />
       </Routes>
     </>
   );

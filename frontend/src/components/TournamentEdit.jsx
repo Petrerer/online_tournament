@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function TournamentEdit() {
   const { id } = useParams();
@@ -25,23 +25,22 @@ function TournamentEdit() {
       .then(async (data) => {
         setTournament(data.tournament);
         
-        // Check if user can edit
         if (!data.canEdit) {
           navigate(`/tournaments/${id}`);
           return;
         }
         
-        // Pre-fill form with existing data
+        const tournamentDate = new Date(data.tournament.time);
+        const formattedTime = tournamentDate.toISOString().slice(0, 16);
+        
         setFormData({
           name: data.tournament.name,
-          time: data.tournament.time.split('T')[0],
+          time: formattedTime,
           discipline: data.tournament.discipline,
           maxParticipants: data.tournament.maxParticipants
         });
 
-        // Fetch participant details
         if (data.tournament.participants.length > 0) {
-          // Extract user IDs from participant objects
           const userIds = data.tournament.participants.map(p => p.userId);
           
           const usersRes = await fetch("http://localhost:3000/users/by-ids", {
@@ -51,12 +50,11 @@ function TournamentEdit() {
           });
           const usersData = await usersRes.json();
           
-          // Merge user data with participant data (license number, ranking)
           const enrichedParticipants = data.tournament.participants.map(p => {
             const user = usersData.find(u => u._id === p.userId);
             return {
               ...p,
-              userName: user?.name || user?.email || 'Unknown User',
+              userName: user ? `${user.name} ${user.surname}` : 'Unknown User',
               userEmail: user?.email
             };
           });
@@ -95,7 +93,6 @@ function TournamentEdit() {
         throw new Error(data.error || "Failed to remove participant");
       }
 
-      // Update local state
       setParticipants(participants.filter(p => p.userId !== userId));
       setTournament({
         ...tournament,
@@ -124,7 +121,6 @@ function TournamentEdit() {
         throw new Error(data.error || "Failed to update tournament");
       }
 
-    
       navigate(`/tournaments/${id}`);
     } catch (err) {
       setError(err.message);
@@ -174,9 +170,9 @@ function TournamentEdit() {
         </div>
 
         <div>
-          <label>Date:</label>
+          <label>Date & Time:</label>
           <input
-            type="date"
+            type="datetime-local"
             name="time"
             value={formData.time}
             onChange={handleChange}
@@ -215,7 +211,7 @@ function TournamentEdit() {
             <p>No participants yet</p>
           ) : (
             participants.map((participant, index) => (
-              <div key={participant.userId || index} style={{ marginBottom: "10px" }}>
+              <div key={participant.userId || index}>
                 <span>
                   <strong>{participant.userName}</strong>
                   {participant.userEmail && ` (${participant.userEmail})`}
@@ -226,7 +222,6 @@ function TournamentEdit() {
                 <button
                   type="button"
                   onClick={() => handleRemoveParticipant(participant.userId)}
-                  style={{ marginLeft: "10px" }}
                 >
                   Remove
                 </button>

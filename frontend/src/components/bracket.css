@@ -1,0 +1,102 @@
+/* bracket.css */
+
+.tournament-details {
+  padding: 20px;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.actions {
+  margin-bottom: 20px;
+}
+
+.actions button {
+  margin-left: 10px;
+}
+
+.actions button:first-child {
+  margin-left: 0;
+}
+
+.tournament-info {
+  margin-bottom: 20px;
+}
+
+.bracket-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 20px 0;
+}
+
+.bracket-container {
+  position: relative;
+  margin: 0 auto;
+}
+
+.bracket-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.round-label {
+  position: absolute;
+  top: 20px;
+  width: 220px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.match-box {
+  position: absolute;
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 0;
+  background-color: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.match-box.completed {
+  background-color: #f0f0f0;
+}
+
+.player {
+  padding: 8px 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.player:last-child {
+  border-bottom: none;
+}
+
+.player.winner {
+  background-color: #d4edda;
+  font-weight: bold;
+}
+
+.player-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score {
+  font-size: 12px;
+  margin-left: 8px;
+  color: #666;
+  font-weight: bold;
+}
