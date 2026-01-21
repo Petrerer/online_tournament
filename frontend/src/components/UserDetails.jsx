@@ -178,7 +178,7 @@ function UserDetails() {
                         type="number"
                         min="0"
                         max="1"
-                        value={submissionValues[tournament._id] || ""}
+                        value={submissionValues[tournament._id] ?? ""}
                         onChange={(e) => handleSubmissionChange(tournament._id, parseInt(e.target.value))}
                       />
                     </label>
